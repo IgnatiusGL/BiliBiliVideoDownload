@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pers.ignatius.bilibili.javafx.AboutController">
+   <left>
+      <Label text="作者:IgnatiusGL" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+   </left>
+   <right>
+      <Label text="联系方式:QQ-2370291851" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="YouYuan" size="14.0" />
+         </font>
+      </Label>
+   </right>
+   <padding>
+      <Insets bottom="50.0" left="50.0" right="50.0" />
+   </padding>
+   <bottom>
+      <Button mnemonicParsing="false" fx:id="buttonOK" onAction="#buttonOKOnClick" prefHeight="23.0" prefWidth="60.0" text="ok" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>

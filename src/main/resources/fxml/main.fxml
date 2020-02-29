@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pers.ignatius.bilibili.javafx.MainController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="帮助">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#buttonAboutOnClick" text="关于" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane prefHeight="200.0" prefWidth="200.0">
+               <right>
+                  <ChoiceBox fx:id="choiceBox" BorderPane.alignment="CENTER" />
+               </right>
+               <left>
+                  <TextField fx:id="videoUrl" focusTraversable="false" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="407.0" promptText="视频地址 https://www.bilibili.com/video/av****** 不要有其他后缀" BorderPane.alignment="CENTER">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </TextField>
+               </left>
+               <center>
+                  <Label text="视频质量(请选择网页中包括的):" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <BorderPane.margin>
+                        <Insets right="-45.0" />
+                     </BorderPane.margin>
+                  </Label>
+               </center>
+               <padding>
+                  <Insets right="50.0" />
+               </padding>
+            </BorderPane>
+            <BorderPane prefHeight="73.0" prefWidth="1000.0">
+               <center>
+                  <TextField fx:id="path" editable="false" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets right="50.0" />
+                     </BorderPane.margin></TextField>
+               </center>
+               <right>
+                  <Button mnemonicParsing="false" onAction="#buttonSelectPathOnClick" text="选择路径" BorderPane.alignment="CENTER" />
+               </right>
+            </BorderPane>
+            <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="250.0">
+               <right>
+                  <Button fx:id="start" disable="true" mnemonicParsing="false" onAction="#buttonStartOnClick" text="开始下载" BorderPane.alignment="CENTER">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Button>
+               </right>
+               <left>
+                  <Button mnemonicParsing="false" onAction="#buttonAnalyseOnClick" text="解析地址" BorderPane.alignment="CENTER" />
+               </left>
+            </BorderPane>
+         </children>
+         <padding>
+            <Insets left="100.0" right="100.0" top="50.0" />
+         </padding>
+      </VBox>
+   </center>
+   <bottom>
+      <VBox prefHeight="200.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="30.0" prefWidth="1000.0">
+               <children>
+                  <Label fx:id="p1Title" alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="24.0" prefWidth="231.0" />
+                  <ProgressBar fx:id="p1Progress" prefHeight="24.0" prefWidth="400.0" progress="0.0" visible="false">
+                     <HBox.margin>
+                        <Insets left="50.0" />
+                     </HBox.margin>
+                  </ProgressBar>
+                  <Label fx:id="p1ProgressPercent" prefHeight="24.0" prefWidth="70.0" text="0%" visible="false">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin></Label>
+                  <Label fx:id="p1PercentInformation" prefHeight="24.0" prefWidth="181.0">
+                     <HBox.margin>
+                        <Insets left="50.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="3.0" top="3.0" />
+               </padding>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="50.0" right="50.0" />
+         </padding>
+      </VBox>
+   </bottom>
+</BorderPane>
