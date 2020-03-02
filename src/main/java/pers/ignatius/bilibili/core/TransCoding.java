@@ -1,9 +1,10 @@
 package pers.ignatius.bilibili.core;
 
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @ClassName : TransCoding
@@ -12,29 +13,42 @@ import java.util.List;
  * @Date : 2020-02-28 15:58
  */
 public class TransCoding {
-    private String ffmpeg;
+    private static String ffmpeg;
     private String videoUrl;
     private String audioUrl;
     private String tvideoUrl;
     private String taudioUrl;
 
-    public TransCoding(String url){
+    /**
+     * 创建转码程序
+     * @param path   地址
+     */
+    public static void buildProgram(String path){
         try {
-            InputStream is = getClass().getResource("/ffmpeg/bin/ffmpeg.exe").openStream();
-            ffmpeg = url + "/ffmpeg.exe";
-            OutputStream os = new FileOutputStream(ffmpeg);
-            byte[] b = new byte[2048];
-            int length;
-            while ((length = is.read(b)) != -1) {
+            InputStream is = TransCoding.class.getResource("/ffmpeg/bin/ffmpeg.exe").openStream();
+            ffmpeg = path + "/ffmpeg.exe";
+            if (!new File(ffmpeg).exists()){
+                OutputStream os = new FileOutputStream(ffmpeg);
+                byte[] b = new byte[2048];
+                int length;
+                while ((length = is.read(b)) != -1) {
 
-                os.write(b, 0, length);
+                    os.write(b, 0, length);
 
+                }
+                is.close();
+                os.close();
             }
-            is.close();
-            os.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 删除转码程序
+     */
+    public static void disBuildProgram(){
+        new File(ffmpeg).delete();
     }
 
     /**
@@ -43,7 +57,7 @@ public class TransCoding {
      * @param path  处理后生成文件地址
      * @return  true-成功 false-失败
      */
-    public boolean transM4s(String ms4Url,String path){
+    public boolean transM4s(String ms4Url,String path,Progress progress){
         //保存路径,方便清理
         if (path.contains(".mp4")){
             this.videoUrl = ms4Url;
@@ -63,7 +77,7 @@ public class TransCoding {
         String command =  ffmpeg +
                 " -i " + ms4Url +
                 " -c:v libx264 -strict -2 " + path;
-        return exec(Arrays.asList(command.split(" ")));
+        return exec(Arrays.asList(command.split(" ")),progress);
     }
 
     /**
@@ -73,7 +87,7 @@ public class TransCoding {
      * @param path  生成视频路径
      * @return  true-成功 false-失败
      */
-    public boolean merge(String videoUrl,String audioUrl,String path){
+    public boolean merge(String videoUrl,String audioUrl,String path,Progress progress){
         //项目utf-8 命令行gbk 转码
         try {
             videoUrl = new String(videoUrl.getBytes( "GBK"),"GBK");
@@ -88,7 +102,7 @@ public class TransCoding {
                 " -i " + videoUrl +
                 " -i " + audioUrl +
                 " -c:v copy -c:a aac -strict experimental " + path;
-        return exec(Arrays.asList(command.split(" ")));
+        return exec(Arrays.asList(command.split(" ")),progress);
     }
 
     /**
@@ -99,7 +113,6 @@ public class TransCoding {
         new File(audioUrl).delete();
         new File(tvideoUrl).delete();
         new File(taudioUrl).delete();
-        new File(ffmpeg).delete();
     }
 
     /**
@@ -107,17 +120,14 @@ public class TransCoding {
      * @param command   命令
      * @return  true-成功 false-失败
      */
-    private boolean exec(List<String> command){
+    private boolean exec(List<String> command,Progress progress){
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(command);
         try {
             System.out.println("开始转码处理");
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
-            StringBuilder sbf = new StringBuilder();
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            new StreamHandler(process.getInputStream()).start();
+            new StreamHandler(process.getInputStream(),progress).start();
             process.waitFor();
             process.destroy();
         } catch (IOException e) {
@@ -133,22 +143,66 @@ public class TransCoding {
     static class StreamHandler extends Thread {
 
         private InputStream in;
+        private Progress progress;
 
-        public StreamHandler(InputStream in) {
+        public StreamHandler(InputStream in,Progress progress) {
             this.in = in;
+            this.progress = progress;
         }
 
         public void run() {
             try {
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(in));
-                String line = null;
+                String line;
+                long totalTime = 1;
+                long currentTime = 0;
                 while ((line = reader.readLine()) != null) {
+                    //获取总时间
+                    if (totalTime == 1){
+                        //Duration: 00:00:21.93, start: 0.000000, bitrate: 387 kb/s
+                        String t = findText("Duration: \\d\\d:\\d\\d:\\d\\d.\\d\\d, start: 0.000000,",line);
+                        if (t != null){
+                            String[] times = t.substring(10, t.length()-18).split("[:.]");
+                            //计算秒毫秒舍去
+                            totalTime = 0;
+                            for (int i=1;i<times.length;i++){
+                                totalTime += Long.parseLong(times[times.length - i - 1]) * (int)Math.pow(60, i-1);
+                            }
+                            totalTime -= 1;
+                        }
+                    }
+                    String y = findText("time=\\d\\d:\\d\\d:\\d\\d.\\d\\d bitrate=",line);
+                    if (y != null){
+                        String[] times = y.substring(5, y.length()-9).split("[:.]");
+                        //计算秒毫秒舍去
+                        currentTime = 0;
+                        for (int i=1;i<times.length;i++){
+                            currentTime += Long.parseLong(times[times.length - i - 1]) * (int)Math.pow(60, i-1);
+                        }
+                    }
+                    progress.setProgress((double) currentTime/totalTime);
                     System.out.println(line);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
+        /**
+         * 正则匹配找第一个
+         * @param reger 正则表达式
+         * @param page  匹配的页面
+         * @return  匹配的文字
+         */
+        private String findText(String reger,String page){
+            Pattern pattern = Pattern.compile(reger);
+            Matcher matcher = pattern.matcher(page);
+            if(matcher.find()){
+                return matcher.group(0);
+            }
+            return null;
+        }
     }
+
+
 }

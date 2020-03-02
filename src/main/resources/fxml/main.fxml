@@ -7,14 +7,13 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pers.ignatius.bilibili.javafx.MainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pers.ignatius.bilibili.javafx.MainController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -27,7 +26,7 @@
       </MenuBar>
    </top>
    <center>
-      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <BorderPane prefHeight="200.0" prefWidth="200.0">
                <right>
@@ -74,7 +73,7 @@
                   </Button>
                </right>
                <left>
-                  <Button mnemonicParsing="false" onAction="#buttonAnalyseOnClick" text="解析地址" BorderPane.alignment="CENTER" />
+                  <Button fx:id="analyze" mnemonicParsing="false" onAction="#buttonAnalyseOnClick" text="解析地址" BorderPane.alignment="CENTER" />
                </left>
             </BorderPane>
          </children>
@@ -84,34 +83,41 @@
       </VBox>
    </center>
    <bottom>
-      <VBox prefHeight="200.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
-         <children>
-            <HBox prefHeight="30.0" prefWidth="1000.0">
+      
+   </bottom>
+   <bottom>
+      <ScrollPane hbarPolicy="NEVER" prefHeight="300.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+         <content>
+            <VBox fx:id="videoInformation" prefHeight="300.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label fx:id="p1Title" alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="24.0" prefWidth="231.0" />
-                  <ProgressBar fx:id="p1Progress" prefHeight="24.0" prefWidth="400.0" progress="0.0" visible="false">
-                     <HBox.margin>
-                        <Insets left="50.0" />
-                     </HBox.margin>
-                  </ProgressBar>
-                  <Label fx:id="p1ProgressPercent" prefHeight="24.0" prefWidth="70.0" text="0%" visible="false">
-                     <HBox.margin>
-                        <Insets left="5.0" />
-                     </HBox.margin></Label>
-                  <Label fx:id="p1PercentInformation" prefHeight="24.0" prefWidth="181.0">
-                     <HBox.margin>
-                        <Insets left="50.0" />
-                     </HBox.margin>
-                  </Label>
+                  <!--            <HBox prefHeight="30.0" prefWidth="1000.0">-->
+                  <!--               <children>-->
+                  <!--                  <Label fx:id="p1Title" alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="24.0" prefWidth="231.0" />-->
+                  <!--                  <ProgressBar fx:id="p1Progress" prefHeight="24.0" prefWidth="400.0" progress="0.0" visible="false">-->
+                  <!--                     <HBox.margin>-->
+                  <!--                        <Insets left="50.0" />-->
+                  <!--                     </HBox.margin>-->
+                  <!--                  </ProgressBar>-->
+                  <!--                  <Label fx:id="p1ProgressPercent" prefHeight="24.0" prefWidth="70.0" text="0%" visible="false">-->
+                  <!--                     <HBox.margin>-->
+                  <!--                        <Insets left="5.0" />-->
+                  <!--                     </HBox.margin></Label>-->
+                  <!--                  <Label fx:id="p1PercentInformation" prefHeight="24.0" prefWidth="181.0">-->
+                  <!--                     <HBox.margin>-->
+                  <!--                        <Insets left="50.0" />-->
+                  <!--                     </HBox.margin>-->
+                  <!--                  </Label>-->
+                  <!--               </children>-->
+                  <!--               <padding>-->
+                  <!--                  <Insets bottom="3.0" top="3.0" />-->
+                  <!--               </padding>-->
+                  <!--            </HBox>-->
                </children>
                <padding>
-                  <Insets bottom="3.0" top="3.0" />
+                  <Insets left="50.0" right="50.0" />
                </padding>
-            </HBox>
-         </children>
-         <padding>
-            <Insets left="50.0" right="50.0" />
-         </padding>
-      </VBox>
+            </VBox>
+         </content>
+      </ScrollPane>
    </bottom>
 </BorderPane>

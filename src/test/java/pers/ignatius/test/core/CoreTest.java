@@ -24,23 +24,23 @@ public class CoreTest {
         String url = "http://cn-jlcc-cu-v-01.bilivideo.com/upgcxcode/62/12/153371262/153371262-1-30080.m4s?expires=1582880400&platform=pc&ssig=8BOIOJpm1oF46kTaqH2A_A&oi=2947505655&trid=e4e39bbf94a64bb58f3d1bf06105a2a1u&nfc=1&nfb=maPYqpoel5MI3qOUX6YpRA==&mid=28134940";
         String avId = "89799412";
         String path =  file + "\\newVideo.m4s";
-        download.download(url, path, avId, DownloadType.VIDEO);
+//        download.download(url, path, avId, DownloadType.VIDEO);
         url = "http://cn-hbcd2-cu-v-16.bilivideo.com/upgcxcode/62/12/153371262/153371262-1-30280.m4s?expires=1582881300&platform=pc&ssig=bFif2VpDF_PJj32voLzvGw&oi=2947505655&trid=68ebd91d6991410e8a147e0dafa6e651u&nfc=1&nfb=maPYqpoel5MI3qOUX6YpRA==&mid=28134940&logo=80000000";
         path =  file + "\\newAudio.m4s";
-        download.download(url, path, avId, DownloadType.AUDIO);
+//        download.download(url, path, avId, DownloadType.AUDIO);
     }
 
     @Test
     public void testTransCoding(){
         TransCoding transCoding = new TransCoding(file.toString());
-        transCoding.transM4s(file + "\\newVideo.m4s",file + "\\newVideo.mp4");
-        transCoding.transM4s(file + "\\newAudio.m4s",file + "\\newAudio.mp3");
+//        transCoding.transM4s(file + "\\newVideo.m4s",file + "\\newVideo.mp4");
+//        transCoding.transM4s(file + "\\newAudio.m4s",file + "\\newAudio.mp3");
     }
 
     @Test
     public void merge(){
         TransCoding transCoding = new TransCoding(file.toString());
-        transCoding.merge(file + "\\newVideo.mp4",file + "\\newAudio.mp3",file + "\\resultVideo.mp4");
+//        transCoding.merge(file + "\\newVideo.mp4",file + "\\newAudio.mp3",file + "\\resultVideo.mp4");
     }
 
     @Test

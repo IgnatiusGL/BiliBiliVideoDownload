@@ -205,7 +205,7 @@ public class GetVideoInformation {
                 res.append(t).append("\n");
             }
             page = res.toString();
-            Thread.sleep((new Random().nextInt(3) + 2)*1000);
+            Thread.sleep((new Random().nextInt(2) + 2)*1000);
             bf.close();
             in.close();
             httpURLConnection.disconnect();

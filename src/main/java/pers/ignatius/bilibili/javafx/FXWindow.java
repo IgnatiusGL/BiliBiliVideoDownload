@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import pers.ignatius.bilibili.core.GetVideoInformation;
@@ -33,6 +34,8 @@ public class FXWindow extends Application {
             return;
         }
         Scene scene = new Scene(root);
+        primaryStage.setTitle("B站视频下载工具");
+        primaryStage.getIcons().add(new Image(getClass().getResource("/img/bilibili.png").toString()));
         primaryStage.setScene(scene);
         primaryStage.show();
     }
