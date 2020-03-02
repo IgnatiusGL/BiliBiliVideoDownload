@@ -7,5 +7,5 @@ package pers.ignatius.bilibili.core;
  * @Date : 2020-02-28 19:52
  */
 public enum VideoQuality {
-    FHD,HD,SD
+    P1080,P720,P480,P360
 }

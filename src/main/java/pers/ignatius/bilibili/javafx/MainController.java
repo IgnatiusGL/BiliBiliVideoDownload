@@ -48,14 +48,14 @@ public class MainController {
         System.out.println();
         VideoQuality quality;
         String t = choiceBox.getValue().toString();
-        if ("1080P".equals(t))
-            quality = VideoQuality.FHD;
-        else if ("720P".equals(t))
-            quality = VideoQuality.HD;
-        else
-            quality = VideoQuality.SD;
-        getVideoInformation.analyzeUrl(videoUrl.getText(),quality);
-        p1Title.setText(getVideoInformation.getTitle());
+//        if ("1080P".equals(t))
+//            quality = VideoQuality.FHD;
+//        else if ("720P".equals(t))
+//            quality = VideoQuality.HD;
+//        else
+//            quality = VideoQuality.SD;
+//        getVideoInformation.analyzeUrl(videoUrl.getText(),quality);
+//        p1Title.setText(getVideoInformation.getTitle());
         p1Progress.setVisible(true);
         p1ProgressPercent.setVisible(true);
         p1PercentInformation.setText("准备下载");
@@ -81,15 +81,15 @@ public class MainController {
 
     @FXML
     private void buttonStartOnClick(ActionEvent actionEvent){
-        String videoUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Video.m4s";
-        String audioUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Audio.m4s";
-        String tvideoUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Video.mp4";
-        String taudioUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Audio.mp3";
-        String resultUrl = path.getText() + "\\" + getVideoInformation.getTitle() + ".mp4";
+//        String videoUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Video.m4s";
+//        String audioUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Audio.m4s";
+//        String tvideoUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Video.mp4";
+//        String taudioUrl = path.getText() + "\\" + getVideoInformation.getTitle() + "Audio.mp3";
+//        String resultUrl = path.getText() + "\\" + getVideoInformation.getTitle() + ".mp4";
         download = new Download();
         Thread d = new Thread(()->{
-            download.download(getVideoInformation.getVideoUrl(), videoUrl, getVideoInformation.getAv(), DownloadType.VIDEO);
-            download.download(getVideoInformation.getAudioUrl(), audioUrl, getVideoInformation.getAv(), DownloadType.AUDIO);
+//            download.download(getVideoInformation.getVideoUrl(), videoUrl, getVideoInformation.getAv(), DownloadType.VIDEO);
+//            download.download(getVideoInformation.getAudioUrl(), audioUrl, getVideoInformation.getAv(), DownloadType.AUDIO);
         });
         d.start();
         p1PercentInformation.setText("正在下载");
@@ -112,9 +112,9 @@ public class MainController {
                 p1PercentInformation.setText("正在转码,时间较长,请稍后");
             });
             TransCoding transCoding = new TransCoding(this.path.getText());
-            transCoding.transM4s(videoUrl,tvideoUrl);
-            transCoding.transM4s(audioUrl,taudioUrl);
-            transCoding.merge(tvideoUrl,taudioUrl,resultUrl);
+//            transCoding.transM4s(videoUrl,tvideoUrl);
+//            transCoding.transM4s(audioUrl,taudioUrl);
+//            transCoding.merge(tvideoUrl,taudioUrl,resultUrl);
             Platform.runLater(()->{
                 p1PercentInformation.setText("完成");
             });
