@@ -47,8 +47,11 @@ public class MainController {
     public void initialize(){
         choiceBox.setItems(FXCollections.observableArrayList("1080P","720P","480P","360P"));
         Properties properties = new Properties();
+        File file = new File("C:\\ProgramData\\bilibili.properties");
         try {
-            properties.load(new FileInputStream(getClass().getResource("/config/path.properties").getFile()));
+            if (!file.exists())
+                file.createNewFile();
+            properties.load(new FileInputStream(file));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -234,7 +237,7 @@ public class MainController {
         Properties properties = new Properties();
         properties.put("path", path.getText());
         try {
-            properties.store(new FileOutputStream(getClass().getResource("/config/path.properties").getFile()), "保存上次路径");
+            properties.store(new FileOutputStream(new File("C:\\ProgramData\\bilibili.properties")), "保存上次路径");
         } catch (IOException e) {
             e.printStackTrace();
         }
