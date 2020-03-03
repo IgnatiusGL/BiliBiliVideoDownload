@@ -110,7 +110,7 @@ public class GetVideoInformation {
             for (int i=0;matcher.find();i++){
                 String title = matcher.group();
                 VideoInformation videoInformation = new VideoInformation();
-                videoInformation.setTitle(title.substring(8,title.length()-1));
+                videoInformation.setTitle("P" + (i + 1) + " " + title.substring(8,title.length()-1));
                 videoInformation.setUrl(url + "?p=" + (i + 1));
                 videoInformations.add(videoInformation);
             }
