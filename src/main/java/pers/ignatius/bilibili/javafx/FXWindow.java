@@ -39,4 +39,9 @@ public class FXWindow extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    @Override
+    public void stop(){
+        System.exit(0);
+    }
 }
