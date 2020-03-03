@@ -13,14 +13,14 @@ repositories {
 }
 
 //jlink时注释掉
-sourceSets{
-    main{
-        output.resourcesDir = "build/classes/java/main" as File
-    }
-    test{
-        output.resourcesDir = "build/classes/java/test" as File
-    }
-}
+//sourceSets{
+//    main{
+//        output.resourcesDir = "build/classes/java/main" as File
+//    }
+//    test{
+//        output.resourcesDir = "build/classes/java/test" as File
+//    }
+//}
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
