@@ -98,7 +98,7 @@ public class MainController {
                 });
                 videoInformationList = getVideoInformation.getVideoInformationFromUrl(videoUrl.getText(),quality);
             } catch (InternetException e) {
-                Platform.runLater(()->new Error("网络异常", "网站无法访问,请检查您的网络").show());
+                Platform.runLater(()->new Error(e.getMessage(), "网站无法访问,请检查您的网络").show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -106,7 +106,7 @@ public class MainController {
                 });
                 return;
             } catch (WebsiteNotEndWithAvException e) {
-                Platform.runLater(()->new Error("网址异常", "网址不符合规范").show());
+                Platform.runLater(()->new Error(e.getMessage(), "网址不符合规范").show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -114,7 +114,7 @@ public class MainController {
                 });
                 return;
             } catch (UnknownException e) {
-                Platform.runLater(()->new Error("未知异常", "未知异常").show());
+                Platform.runLater(()->new Error(e.getMessage(), "未知异常").show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -122,7 +122,7 @@ public class MainController {
                 });
                 return;
             } catch (AnalyzeUrlException e) {
-                Platform.runLater(()->new Error("解析异常", "URL解析异常,请联系作者").show());
+                Platform.runLater(()->new Error(e.getMessage(), "URL解析异常,请联系作者").show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -190,7 +190,8 @@ public class MainController {
         this.path.setText(path);
     }
 
-    private Download download;
+    @FXML
+    private CheckBox isSoftwareDecoding;
 
     @FXML
     private void buttonStartOnClick(ActionEvent actionEvent){
@@ -203,13 +204,14 @@ public class MainController {
         //开始下载并转码视频
         List<VideoAllProcessing> videoAllProcessingList = new ArrayList<>();
         for(VideoInformation v:videoInformationList){
-            VideoAllProcessing videoAllProcessing = new VideoAllProcessing(v, path.getText());
+            VideoAllProcessing videoAllProcessing = new VideoAllProcessing(v, path.getText(), !isSoftwareDecoding.isSelected());
             videoAllProcessingList.add(videoAllProcessing);
             pool.execute(videoAllProcessing);
         }
         //启动线程更新UI
         Scene scene = path.getScene();
         new Thread(()->{
+            start.setDisable(true);
             pool.shutdown();
             for (int i=0;!pool.isTerminated();i++){
                 if (i == videoAllProcessingList.size())
@@ -226,12 +228,11 @@ public class MainController {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    new Error("网络异常", "网站无法访问,请检查您的网络").show();
+                    new Error(e.getMessage(), "网站无法访问,请检查您的网络").show();
                     e.printStackTrace();
                 }
             }
             pool = new ThreadPoolExecutor(4, 4, 120, TimeUnit.SECONDS,new LinkedBlockingQueue<>());
-            start.setDisable(false);
             TransCoding.disBuildProgram();
         }).start();
         Properties properties = new Properties();

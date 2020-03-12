@@ -1,5 +1,7 @@
 package pers.ignatius.bilibili.core;
 
+import pers.ignatius.bilibili.exception.FileUnexpectedEndException;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +28,7 @@ public class TransCoding {
     public static void buildProgram(String path){
         try {
             InputStream is = TransCoding.class.getResource("/ffmpeg/bin/ffmpeg.exe").openStream();
-            ffmpeg = path + "/ffmpeg.exe";
+            ffmpeg = path + "\\ffmpeg.exe";
             if (!new File(ffmpeg).exists()){
                 OutputStream os = new FileOutputStream(ffmpeg);
                 byte[] b = new byte[2048];
@@ -57,14 +59,17 @@ public class TransCoding {
      * @param path  处理后生成文件地址
      * @return  true-成功 false-失败
      */
-    public boolean transM4s(String ms4Url,String path,Progress progress){
+    public boolean transM4s(String ms4Url,String path,Progress progress,boolean isTryHardwareDecoding) throws FileUnexpectedEndException {
         //保存路径,方便清理
-        if (path.contains(".mp4")){
+        String fileEnd = path.substring(path.length() - 3);
+        if ("mp4".equals(fileEnd)){
             this.videoUrl = ms4Url;
             this.tvideoUrl = path;
-        }else if (path.contains(".mp3")){
+        }else if ("mp3".equals(fileEnd)){
             this.audioUrl = ms4Url;
             this.taudioUrl = path;
+        }else {
+            throw new FileUnexpectedEndException(fileEnd);
         }
         //项目utf-8 命令行gbk 转码
         try {
@@ -74,9 +79,26 @@ public class TransCoding {
             e.printStackTrace();
             return false;
         }
-        String command =  ffmpeg +
-                " -i " + ms4Url +
-                " -c:v libx264 -strict -2 " + path;
+        //命令
+        String command;
+        if (isTryHardwareDecoding){
+            command =  ffmpeg +
+                    " -strict -2 -hwaccel d3d11va -i " +
+                    ms4Url +
+                    " -f " +
+                    fileEnd +
+                    " " +
+                    path;
+        }else {
+            command =  ffmpeg +
+                    "-i " +
+                    ms4Url +
+                    " -strict -2 -c:v libx264 -f " +
+                    fileEnd +
+                    " " +
+                    path;
+        }
+        System.out.println("命令:" + command);
         return exec(Arrays.asList(command.split(" ")),progress);
     }
 
@@ -182,7 +204,7 @@ public class TransCoding {
                         }
                     }
                     progress.setProgress((double) currentTime/totalTime);
-                    System.out.println(line);
+                    //System.out.println(line);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

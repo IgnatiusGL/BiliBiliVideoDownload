@@ -1,5 +1,7 @@
 package pers.ignatius.bilibili.core;
 
+import pers.ignatius.bilibili.exception.FileUnexpectedEndException;
+
 import java.util.List;
 
 /**
@@ -19,6 +21,7 @@ public class VideoAllProcessing implements Runnable {
     private Progress transCodeVideoProgress;
     private Progress transCodeAudioProgress;
     private Progress mergeProgress;
+    private boolean isTryHardwareDecoding;
 
     {
         download = new Download();
@@ -29,9 +32,10 @@ public class VideoAllProcessing implements Runnable {
         mergeProgress = new Progress();
     }
 
-    public VideoAllProcessing(VideoInformation videoInformation, String path) {
+    public VideoAllProcessing(VideoInformation videoInformation, String path,boolean isTryHardwareDecoding) {
         this.videoInformation = videoInformation;
         this.path = path;
+        this.isTryHardwareDecoding = isTryHardwareDecoding;
         transCoding = new TransCoding();
     }
 
@@ -48,12 +52,23 @@ public class VideoAllProcessing implements Runnable {
         download.download(videoInformation.getAudioUrl(),videoInformation.getUrl(), audioUrl, downloadAudioProgress);
         //转码
         message = "正在转码,时间较长";
-        transCoding.transM4s(videoUrl,tvideoUrl,transCodeVideoProgress);
-        transCoding.transM4s(audioUrl,taudioUrl,transCodeAudioProgress);
+        try {
+            transCoding.transM4s(videoUrl,tvideoUrl,transCodeVideoProgress,isTryHardwareDecoding);
+            transCoding.transM4s(audioUrl,taudioUrl,transCodeAudioProgress,isTryHardwareDecoding);
+        } catch (FileUnexpectedEndException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            transCoding.cleanTmpFile();
+            return;
+        }
         transCoding.merge(tvideoUrl,taudioUrl,resultUrl,mergeProgress);
         //清理
         transCoding.cleanTmpFile();
-        message = "完成";
+        if ("100%".equals(getProgress().toString())){
+            message = "完成";
+        }else {
+            message = "异常";
+        }
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
