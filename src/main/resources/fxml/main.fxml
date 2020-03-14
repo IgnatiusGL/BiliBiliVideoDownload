@@ -9,8 +9,11 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -54,11 +57,26 @@
                   <Insets right="50.0" />
                </padding>
                <bottom>
-                  <CheckBox fx:id="isSoftwareDecoding" mnemonicParsing="false" text="使用软件解码(画质最好,速度非常慢)" BorderPane.alignment="CENTER">
-                     <padding>
-                        <Insets bottom="10.0" />
-                     </padding>
-                  </CheckBox>
+                  <HBox prefHeight="50.0" prefWidth="750.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <CheckBox fx:id="isSoftwareDecoding" alignment="CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="使用软件解码(画质最好,速度非常慢)" />
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                           <left>
+                              <Label prefHeight="26.0" text="线程数(单任务无效):" BorderPane.alignment="CENTER" />
+                           </left>
+                           <HBox.margin>
+                              <Insets left="50.0" />
+                           </HBox.margin>
+                           <center>
+                              <Spinner fx:id="threadNum" BorderPane.alignment="CENTER">
+                                 <valueFactory>
+                                    <SpinnerValueFactory.IntegerSpinnerValueFactory amountToStepBy="1" initialValue="4" max="64" min="1" />
+                                 </valueFactory>
+                              </Spinner>
+                           </center>
+                        </BorderPane>
+                     </children>
+                  </HBox>
                </bottom>
             </BorderPane>
             <BorderPane prefHeight="73.0" prefWidth="1000.0">
@@ -96,31 +114,7 @@
    <bottom>
       <ScrollPane hbarPolicy="NEVER" prefHeight="300.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <content>
-            <VBox fx:id="videoInformation" prefHeight="300.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
-               <children>
-                  <!--            <HBox prefHeight="30.0" prefWidth="1000.0">-->
-                  <!--               <children>-->
-                  <!--                  <Label fx:id="p1Title" alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="24.0" prefWidth="231.0" />-->
-                  <!--                  <ProgressBar fx:id="p1Progress" prefHeight="24.0" prefWidth="400.0" progress="0.0" visible="false">-->
-                  <!--                     <HBox.margin>-->
-                  <!--                        <Insets left="50.0" />-->
-                  <!--                     </HBox.margin>-->
-                  <!--                  </ProgressBar>-->
-                  <!--                  <Label fx:id="p1ProgressPercent" prefHeight="24.0" prefWidth="70.0" text="0%" visible="false">-->
-                  <!--                     <HBox.margin>-->
-                  <!--                        <Insets left="5.0" />-->
-                  <!--                     </HBox.margin></Label>-->
-                  <!--                  <Label fx:id="p1PercentInformation" prefHeight="24.0" prefWidth="181.0">-->
-                  <!--                     <HBox.margin>-->
-                  <!--                        <Insets left="50.0" />-->
-                  <!--                     </HBox.margin>-->
-                  <!--                  </Label>-->
-                  <!--               </children>-->
-                  <!--               <padding>-->
-                  <!--                  <Insets bottom="3.0" top="3.0" />-->
-                  <!--               </padding>-->
-                  <!--            </HBox>-->
-               </children>
+            <VBox fx:id="videoInformation" alignment="TOP_CENTER" prefHeight="300.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
                <padding>
                   <Insets left="50.0" right="50.0" />
                </padding>

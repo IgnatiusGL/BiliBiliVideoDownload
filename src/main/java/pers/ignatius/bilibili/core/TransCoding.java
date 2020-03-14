@@ -83,15 +83,15 @@ public class TransCoding {
         String command;
         if (isTryHardwareDecoding){
             command =  ffmpeg +
-                    " -strict -2 -hwaccel d3d11va -i " +
+                    " -i " +
                     ms4Url +
-                    " -f " +
+                    " -vcodec h264_nvenc -f " +
                     fileEnd +
                     " " +
                     path;
         }else {
             command =  ffmpeg +
-                    "-i " +
+                    " -i " +
                     ms4Url +
                     " -strict -2 -c:v libx264 -f " +
                     fileEnd +
@@ -183,9 +183,9 @@ public class TransCoding {
                     //获取总时间
                     if (totalTime == 1){
                         //Duration: 00:00:21.93, start: 0.000000, bitrate: 387 kb/s
-                        String t = findText("Duration: \\d\\d:\\d\\d:\\d\\d.\\d\\d, start: 0.000000,",line);
+                        String t = findText("Duration: \\d\\d:\\d\\d:\\d\\d.\\d\\d,",line);
                         if (t != null){
-                            String[] times = t.substring(10, t.length()-18).split("[:.]");
+                            String[] times = t.substring(10, t.length()-1).split("[:.]");
                             //计算秒毫秒舍去
                             totalTime = 0;
                             for (int i=1;i<times.length;i++){
@@ -204,7 +204,7 @@ public class TransCoding {
                         }
                     }
                     progress.setProgress((double) currentTime/totalTime);
-                    //System.out.println(line);
+                    System.out.println(line);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

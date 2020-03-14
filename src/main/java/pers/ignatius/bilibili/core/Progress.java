@@ -8,12 +8,21 @@ package pers.ignatius.bilibili.core;
  */
 public class Progress {
     private double progress;
+    private ProgressChangeAction progressChangeAction;
 
     public Progress() {
     }
 
     public Progress(double progress) {
         this.progress = progress;
+    }
+
+    /**
+     * 设置进度改变事件处理
+     * @param progressChangeAction  处理类
+     */
+    public void setProgressChangeAction(ProgressChangeAction progressChangeAction){
+        this.progressChangeAction = progressChangeAction;
     }
 
     public double getProgress() {
@@ -24,7 +33,11 @@ public class Progress {
         if (progress>1){
             this.progress = 1;
         }else {
-            this.progress = progress;
+            if (Double.compare(progress, this.progress) != 0){
+                this.progress = progress;
+                if (progressChangeAction != null)
+                    progressChangeAction.changeAction();
+            }
         }
     }
 

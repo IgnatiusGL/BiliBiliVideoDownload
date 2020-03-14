@@ -2,8 +2,6 @@ package pers.ignatius.bilibili.core;
 
 import pers.ignatius.bilibili.exception.FileUnexpectedEndException;
 
-import java.util.List;
-
 /**
  * @ClassName : VideoAllProcessing
  * @Description : 集成视频的所有操作
@@ -11,7 +9,7 @@ import java.util.List;
  * @Date : 2020-03-02 16:04
  */
 public class VideoAllProcessing implements Runnable {
-    public VideoInformation videoInformation;
+    private VideoInformation videoInformation;
     private Download download;
     private TransCoding transCoding;
     private String path;
@@ -22,6 +20,7 @@ public class VideoAllProcessing implements Runnable {
     private Progress transCodeAudioProgress;
     private Progress mergeProgress;
     private boolean isTryHardwareDecoding;
+    private ProgressChangeAction progressChangeAction;
 
     {
         download = new Download();
@@ -37,6 +36,16 @@ public class VideoAllProcessing implements Runnable {
         this.path = path;
         this.isTryHardwareDecoding = isTryHardwareDecoding;
         transCoding = new TransCoding();
+        //设置监听器
+        ProgressChangeAction pca = () -> {
+            if (progressChangeAction != null)
+                this.progressChangeAction.changeAction();
+        };
+        downloadVideoProgress.setProgressChangeAction(pca);
+        downloadAudioProgress.setProgressChangeAction(pca);
+        transCodeVideoProgress.setProgressChangeAction(pca);
+        transCodeAudioProgress.setProgressChangeAction(pca);
+        mergeProgress.setProgressChangeAction(pca);
     }
 
     @Override
@@ -47,17 +56,17 @@ public class VideoAllProcessing implements Runnable {
         String taudioUrl = path + "\\" + videoInformation.getTitle() + "Audio.mp3";
         String resultUrl = path + "\\" + videoInformation.getTitle() + ".mp4";
         //下载
-        message = "正在下载视频";
+        setMessage("正在下载视频");
         download.download(videoInformation.getVideoUrl(),videoInformation.getUrl(), videoUrl, downloadVideoProgress);
         download.download(videoInformation.getAudioUrl(),videoInformation.getUrl(), audioUrl, downloadAudioProgress);
         //转码
-        message = "正在转码,时间较长";
+        setMessage("正在转码,时间较长");
         try {
             transCoding.transM4s(videoUrl,tvideoUrl,transCodeVideoProgress,isTryHardwareDecoding);
             transCoding.transM4s(audioUrl,taudioUrl,transCodeAudioProgress,isTryHardwareDecoding);
         } catch (FileUnexpectedEndException e) {
             e.printStackTrace();
-            message = e.getMessage();
+            setMessage(e.getMessage());
             transCoding.cleanTmpFile();
             return;
         }
@@ -65,15 +74,23 @@ public class VideoAllProcessing implements Runnable {
         //清理
         transCoding.cleanTmpFile();
         if ("100%".equals(getProgress().toString())){
-            message = "完成";
+            setMessage("完成");
         }else {
-            message = "异常";
+            setMessage("异常");
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    }
+
+    /**
+     * 设置进度监听器
+     * @param progressChangeAction  进度监听器
+     */
+    public void setProgressChangeAction(ProgressChangeAction progressChangeAction) {
+        this.progressChangeAction = progressChangeAction;
+    }
+
+    public void setMessage(String message){
+        this.message = message;
+        progressChangeAction.changeAction();
     }
 
     /**
@@ -91,8 +108,8 @@ public class VideoAllProcessing implements Runnable {
     public Progress getProgress(){
         return new Progress(downloadVideoProgress.getProgress()*0.15 +
                 downloadAudioProgress.getProgress()*0.05 +
-                transCodeVideoProgress.getProgress()*0.75 +
-                transCodeAudioProgress.getProgress()*0.02 +
-                mergeProgress.getProgress()*0.03);
+                transCodeVideoProgress.getProgress()*0.70 +
+                transCodeAudioProgress.getProgress()*0.05 +
+                mergeProgress.getProgress()*0.05);
     }
 }

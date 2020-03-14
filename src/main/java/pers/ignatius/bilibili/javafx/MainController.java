@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class MainController {
     private GetVideoInformation getVideoInformation = new GetVideoInformation();
     private List<VideoInformation> videoInformationList;
-    private ThreadPoolExecutor pool = new ThreadPoolExecutor(4, 4, 120, TimeUnit.SECONDS,new LinkedBlockingQueue<>());
+    private ThreadPoolExecutor pool;
 
     @FXML
     private ChoiceBox choiceBox;
@@ -192,6 +192,8 @@ public class MainController {
 
     @FXML
     private CheckBox isSoftwareDecoding;
+    @FXML
+    private Spinner<Integer> threadNum;
 
     @FXML
     private void buttonStartOnClick(ActionEvent actionEvent){
@@ -200,41 +202,48 @@ public class MainController {
             new Error("异常", "没有选择文件路径").show();
             return;
         }
+        //创建线程池
+        int threadNum = this.threadNum.getValue();
+        System.out.println("使用线程数:" + threadNum);
+        pool = new ThreadPoolExecutor(threadNum, threadNum, 120, TimeUnit.SECONDS,new LinkedBlockingQueue<>());
+        //计时
+        long startTime = System.nanoTime();
         TransCoding.buildProgram(path.getText());
         //开始下载并转码视频
         List<VideoAllProcessing> videoAllProcessingList = new ArrayList<>();
-        for(VideoInformation v:videoInformationList){
-            VideoAllProcessing videoAllProcessing = new VideoAllProcessing(v, path.getText(), !isSoftwareDecoding.isSelected());
-            videoAllProcessingList.add(videoAllProcessing);
-            pool.execute(videoAllProcessing);
-        }
-        //启动线程更新UI
         Scene scene = path.getScene();
-        new Thread(()->{
-            start.setDisable(true);
-            pool.shutdown();
-            for (int i=0;!pool.isTerminated();i++){
-                if (i == videoAllProcessingList.size())
-                    i = 0;
-                ProgressBar progressBar = (ProgressBar) scene.lookup("#p1Progress" + i);
-                Label ProgressPercent = (Label) scene.lookup("#p1ProgressPercent" + i);
-                Label PercentInformation = (Label) scene.lookup("#p1PercentInformation" + i);
-                VideoAllProcessing videoAllProcessing = videoAllProcessingList.get(i);
+        start.setDisable(true);
+        for(int i=0;i<videoInformationList.size();i++){
+            VideoAllProcessing videoAllProcessing = new VideoAllProcessing(videoInformationList.get(i), path.getText(), !isSoftwareDecoding.isSelected());
+            ProgressBar progressBar = (ProgressBar) scene.lookup("#p1Progress" + i);
+            Label ProgressPercent = (Label) scene.lookup("#p1ProgressPercent" + i);
+            Label PercentInformation = (Label) scene.lookup("#p1PercentInformation" + i);
+            videoAllProcessing.setProgressChangeAction(() -> {
                 Platform.runLater(()->{
                     progressBar.setProgress(videoAllProcessing.getProgress().getProgress());
                     ProgressPercent.setText(videoAllProcessing.getProgress().toString());
                     PercentInformation.setText(videoAllProcessing.getMessage());
                 });
+            });
+            videoAllProcessingList.add(videoAllProcessing);
+            pool.execute(videoAllProcessing);
+        }
+        //启动线程更新UI
+        new Thread(()->{
+            pool.shutdown();
+            //等待任务执行完毕
+            while (!pool.isTerminated()){
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    new Error(e.getMessage(), "网站无法访问,请检查您的网络").show();
+                    new Error(e.getMessage(), "线程错误,请联系作者").show();
                     e.printStackTrace();
                 }
             }
-            pool = new ThreadPoolExecutor(4, 4, 120, TimeUnit.SECONDS,new LinkedBlockingQueue<>());
             TransCoding.disBuildProgram();
+            System.out.println("共用时:"+ (System.nanoTime() - startTime)/1000000000.0);
         }).start();
+        //保存此次下载目录
         Properties properties = new Properties();
         properties.put("path", path.getText());
         try {
