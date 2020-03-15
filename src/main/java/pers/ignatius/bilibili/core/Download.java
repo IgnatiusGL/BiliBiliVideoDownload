@@ -1,6 +1,7 @@
 package pers.ignatius.bilibili.core;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -24,10 +25,15 @@ public class Download {
         try {
             httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
             httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setConnectTimeout(10000);
             httpURLConnection.setRequestProperty("referer",referer);
             httpURLConnection.setRequestProperty("user-agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36");
             httpURLConnection.connect();
-        } catch (IOException e) {
+        }catch (ConnectException e){
+            e.printStackTrace();
+            System.out.println(Thread.currentThread().getName() + "\t网络连接错误");
+            return false;
+        }catch (IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -63,8 +69,7 @@ public class Download {
             }
             bin.close();
             out.close();
-            Thread.sleep(1000);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         System.out.println(Thread.currentThread().getName() + "\t下载完毕");
