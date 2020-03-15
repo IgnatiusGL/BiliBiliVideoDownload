@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class TransCoding {
     private static String ffmpeg;
-    private static int gpuNum;
+    private volatile static int gpuNum;
     private static final Object gpuLocker = new Object();
 
     private static void gpuHandle(){
@@ -33,7 +33,7 @@ public class TransCoding {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                System.out.println("线程错误");
+                System.out.println(Thread.currentThread().getName() + "\t线程错误");
             }
         }
     }
@@ -132,8 +132,12 @@ public class TransCoding {
                     path;
         }
         boolean result = exec(Arrays.asList(command.split(" ")),progress);
-        synchronized(TransCoding.gpuLocker){
-            TransCoding.gpuNum--;
+
+        //释放GPU请求
+        if ("mp4".equals(fileEnd)) {
+            synchronized (TransCoding.gpuLocker) {
+                TransCoding.gpuNum--;
+            }
         }
         return result;
     }
