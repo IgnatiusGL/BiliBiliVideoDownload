@@ -41,11 +41,12 @@ public class MainController {
     private ThreadPoolExecutor pool;
 
     @FXML
-    private ChoiceBox choiceBox;
+    private ChoiceBox<String> choiceBox;
 
     @FXML
     public void initialize(){
-        choiceBox.setItems(FXCollections.observableArrayList("1080P","720P","480P","360P"));
+        choiceBox.setItems(FXCollections.observableArrayList("最清晰","1080P","720P","480P","360P"));
+        choiceBox.setValue("最清晰");
         Properties properties = new Properties();
         File file = new File("C:\\ProgramData\\bilibili.properties");
         try {
@@ -81,8 +82,10 @@ public class MainController {
             new Error("异常", "未选择视频质量").show();
             return;
         }
-        String t = choiceBox.getValue().toString();
-        if ("1080P".equals(t))
+        String t = choiceBox.getValue();
+        if ("最清晰".equals(t))
+            quality = VideoQuality.HIGHEST_QUALITY;
+        else if ("1080P".equals(t))
             quality = VideoQuality.P1080;
         else if ("720P".equals(t))
             quality = VideoQuality.P720;

@@ -7,5 +7,22 @@ package pers.ignatius.bilibili.core;
  * @Date : 2020-02-28 19:52
  */
 public enum VideoQuality {
-    P1080,P720,P480,P360
+    HIGHEST_QUALITY,
+    P1080(80),
+    P720(64),
+    P480(32),
+    P360(16);
+
+    private int code;
+
+    VideoQuality(){
+
+    }
+    VideoQuality(int code){
+        this.code = code;
+    }
+
+    public int getCode(){
+        return code;
+    }
 }

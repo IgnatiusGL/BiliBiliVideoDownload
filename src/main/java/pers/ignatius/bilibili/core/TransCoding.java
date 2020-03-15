@@ -16,6 +16,28 @@ import java.util.regex.Pattern;
  */
 public class TransCoding {
     private static String ffmpeg;
+    private static int gpuNum;
+    private static final Object gpuLocker = new Object();
+
+    private static void gpuHandle(){
+        while (true){
+            //获取当前GPU转码数量
+            synchronized (TransCoding.gpuLocker){
+                if (gpuNum < 2) {
+                    gpuNum++;
+                    return;
+                }
+            }
+            //休息一下
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.out.println("线程错误");
+            }
+        }
+    }
+
     private String videoUrl;
     private String audioUrl;
     private String tvideoUrl;
@@ -34,9 +56,7 @@ public class TransCoding {
                 byte[] b = new byte[2048];
                 int length;
                 while ((length = is.read(b)) != -1) {
-
                     os.write(b, 0, length);
-
                 }
                 is.close();
                 os.close();
@@ -60,6 +80,7 @@ public class TransCoding {
      * @return  true-成功 false-失败
      */
     public boolean transM4s(String ms4Url,String path,Progress progress,boolean isTryHardwareDecoding) throws FileUnexpectedEndException {
+        System.out.println(Thread.currentThread().getName() + "\t开始转码");
         //保存路径,方便清理
         String fileEnd = path.substring(path.length() - 3);
         if ("mp4".equals(fileEnd)){
@@ -71,6 +92,14 @@ public class TransCoding {
         }else {
             throw new FileUnexpectedEndException(fileEnd);
         }
+
+        //清理目标文件
+        File file = new File(path);
+        if (file.exists()) {
+            System.out.println(Thread.currentThread().getName() + "\t目标文件存在 " + path);
+            file.delete();
+        }
+
         //项目utf-8 命令行gbk 转码
         try {
             ms4Url = new String(ms4Url.getBytes( "GBK"),"GBK");
@@ -81,7 +110,10 @@ public class TransCoding {
         }
         //命令
         String command;
-        if (isTryHardwareDecoding){
+        //硬件加速只应用于视频转码
+        if (isTryHardwareDecoding && !"mp3".equals(fileEnd)){
+            System.out.println(Thread.currentThread().getName() + "\t使用硬件加速");
+            TransCoding.gpuHandle();
             command =  ffmpeg +
                     " -i " +
                     ms4Url +
@@ -90,6 +122,7 @@ public class TransCoding {
                     " " +
                     path;
         }else {
+            System.out.println(Thread.currentThread().getName() + "\t不使用硬件加速");
             command =  ffmpeg +
                     " -i " +
                     ms4Url +
@@ -98,8 +131,11 @@ public class TransCoding {
                     " " +
                     path;
         }
-        System.out.println("命令:" + command);
-        return exec(Arrays.asList(command.split(" ")),progress);
+        boolean result = exec(Arrays.asList(command.split(" ")),progress);
+        synchronized(TransCoding.gpuLocker){
+            TransCoding.gpuNum--;
+        }
+        return result;
     }
 
     /**
@@ -110,6 +146,14 @@ public class TransCoding {
      * @return  true-成功 false-失败
      */
     public boolean merge(String videoUrl,String audioUrl,String path,Progress progress){
+        System.out.println(Thread.currentThread().getName() + "\t合并文件");
+        //清理目标文件
+        File file = new File(path);
+        if (file.exists()) {
+            System.out.println(Thread.currentThread().getName() + "\t目标文件存在 " + path);
+            file.delete();
+        }
+
         //项目utf-8 命令行gbk 转码
         try {
             videoUrl = new String(videoUrl.getBytes( "GBK"),"GBK");
@@ -146,7 +190,7 @@ public class TransCoding {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(command);
         try {
-            System.out.println("开始转码处理");
+            System.out.println(Thread.currentThread().getName() + "\t开始处理");
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
             new StreamHandler(process.getInputStream(),progress).start();
@@ -174,8 +218,7 @@ public class TransCoding {
 
         public void run() {
             try {
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(in));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 String line;
                 long totalTime = 1;
                 long currentTime = 0;
@@ -204,10 +247,10 @@ public class TransCoding {
                         }
                     }
                     progress.setProgress((double) currentTime/totalTime);
-                    System.out.println(line);
+                    System.out.println(Thread.currentThread().getName() + "\t" + line);
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println(Thread.currentThread().getName() + "\t" + e.getMessage());
             }
         }
         /**

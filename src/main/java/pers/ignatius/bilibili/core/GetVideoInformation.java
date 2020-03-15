@@ -37,30 +37,17 @@ public class GetVideoInformation {
         if (url == null) {
             throw new WebsiteNotEndWithAvException();
         }
+        //检查视频清晰度
+        if (videoQuality == null)
+            videoQuality = VideoQuality.HIGHEST_QUALITY;
 
         //获取网页源代码
         String page = getWebsiteSource(url);
         //获取视频的全部视频
         getVideosInformation(url,page,videoInformations);
-        //选择视频清晰度
-        String quality = "64";
-        switch (videoQuality){
-            case P1080:
-                quality = "80";
-                break;
-            case P720:
-                quality = "64";
-                break;
-            case P480:
-                quality = "32";
-                break;
-            case P360:
-                quality = "16";
-                break;
-        }
         //分析所有视频
         for (int i=0;i<videoInformations.size();i++){
-            analyzeUrl(quality,videoInformations.get(i));
+            analyzeUrl(videoQuality,videoInformations.get(i));
         }
         return videoInformations;
     }
@@ -72,13 +59,29 @@ public class GetVideoInformation {
      * @throws InternetException    网络异常
      * @throws AnalyzeUrlException  分析网址异常
      */
-    private void analyzeUrl(String quality,VideoInformation videoInformation) throws InternetException, AnalyzeUrlException {
+    private void analyzeUrl(VideoQuality quality,VideoInformation videoInformation) throws InternetException, AnalyzeUrlException {
         System.out.println(videoInformation.getUrl());
         //获取网页源代码
         String page = getWebsiteSource(videoInformation.getUrl());
 
         //匹配视频地址
-        String videoUrl = findText("\"id\":16,\"baseUrl\":\"[\\s\\S]+?\"",page);
+        int code = quality.getCode();
+        if (quality == VideoQuality.HIGHEST_QUALITY){
+            //找到质量最好
+            String q = findText("\"accept_quality\":\\[[0-9,]*\\]",page);
+            if (q == null)
+                throw new AnalyzeUrlException();
+            if (q.contains(VideoQuality.P1080.getCode() + ""))
+                code = VideoQuality.P1080.getCode();
+            else if (q.contains(VideoQuality.P720.getCode() + ""))
+                code = VideoQuality.P720.getCode();
+            else if (q.contains(VideoQuality.P480.getCode() + ""))
+                code = VideoQuality.P480.getCode();
+            else if (q.contains(VideoQuality.P360.getCode() + ""))
+                code = VideoQuality.P360.getCode();
+        }
+        System.out.println("视频质量:" + code);
+        String videoUrl = findText("\"id\":"+code+",\"baseUrl\":\"[\\s\\S]+?\"",page);
         if (videoUrl == null)//判空
             throw new AnalyzeUrlException();
         videoInformation.setVideoUrl(videoUrl.substring(19,videoUrl.length()-1));

@@ -67,7 +67,7 @@ public class Download {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("下载完毕");
+        System.out.println(Thread.currentThread().getName() + "\t下载完毕");
         return true;
     }
 }
