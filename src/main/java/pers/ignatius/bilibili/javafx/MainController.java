@@ -197,6 +197,8 @@ public class MainController {
     private CheckBox isSoftwareDecoding;
     @FXML
     private Spinner<Integer> threadNum;
+    @FXML
+    private CheckBox isShutDownWhenFinished;
 
     @FXML
     private void buttonStartOnClick(ActionEvent actionEvent){
@@ -215,7 +217,9 @@ public class MainController {
         //开始下载并转码视频
         Scene scene = path.getScene();
         start.setDisable(true);
-        new Dialog("警告", "下载期间占用系统资源较多,尽量减少电脑操作" + (System.nanoTime() - startTime)/1000000000.0,DialogType.WARING);
+        new Dialog("警告", "下载期间占用系统资源较多,尽量减少电脑操作",DialogType.WARING).show();
+        if (isShutDownWhenFinished.isSelected())
+            new Dialog("警告", "您选择了在任务完成后关机",DialogType.WARING).show();
         for(int i=0;i<videoInformationList.size();i++){
             VideoAllProcessing videoAllProcessing = new VideoAllProcessing(videoInformationList.get(i), path.getText(), !isSoftwareDecoding.isSelected());
             ProgressBar progressBar = (ProgressBar) scene.lookup("#p1Progress" + i);
@@ -238,12 +242,26 @@ public class MainController {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    new Dialog(e.getMessage(), "线程错误,请联系作者",DialogType.ERROR).show();
+                    Platform.runLater(()->
+                        new Dialog(e.getMessage(), "线程错误,请联系作者",DialogType.ERROR).show()
+                    );
                     e.printStackTrace();
                 }
             }
             TransCoding.disBuildProgram();
-            new Dialog("完成", "任务完成用时:" + (System.nanoTime() - startTime)/1000000000.0,DialogType.SUCCESSFUL);
+            Platform.runLater(()->
+                new Dialog("完成", "任务完成用时:" + String.format("%.2f秒",(System.nanoTime() - startTime)/1000000000.0),DialogType.SUCCESSFUL).show()
+            );
+            if (isShutDownWhenFinished.isSelected()){
+                try {
+                    Runtime.getRuntime().exec("cmd /c shutdown -s -t 0");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Platform.runLater(()->
+                        new Dialog("异常", "关机错误",DialogType.ERROR).show()
+                    );
+                }
+            }
         }).start();
         //保存此次下载目录
         Properties properties = new Properties();

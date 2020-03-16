@@ -75,6 +75,11 @@
                               </Spinner>
                            </center>
                         </BorderPane>
+                        <CheckBox fx:id="isShutDownWhenFinished" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="任务完成后关机">
+                           <HBox.margin>
+                              <Insets left="50.0" />
+                           </HBox.margin>
+                        </CheckBox>
                      </children>
                   </HBox>
                </bottom>
