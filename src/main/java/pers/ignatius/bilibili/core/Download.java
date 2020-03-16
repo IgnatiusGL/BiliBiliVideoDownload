@@ -39,6 +39,7 @@ public class Download {
         }
         //下载文件
         int fileLength = httpURLConnection.getContentLength();
+        fileLength--;
         BufferedInputStream bin;
         try {
             bin = new BufferedInputStream(httpURLConnection.getInputStream());

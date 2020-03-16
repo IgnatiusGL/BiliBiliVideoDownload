@@ -12,18 +12,20 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
- * @ClassName : Error
- * @Description : 错误窗口
+ * @ClassName : Dialog
+ * @Description : 提示框
  * @Author : IgnatiusGL
- * @Date : 2020-03-02 21:15
+ * @Date : 2020-03-16 15:54
  */
-public class Error {
+public class Dialog {
     private String title;
     private String message;
+    private DialogType dialogType;
 
-    public Error(String title,String message){
+    public Dialog(String title,String message,DialogType dialogType){
         this.title = title;
         this.message = message;
+        this.dialogType = dialogType;
     }
 
     public void show(){
@@ -48,11 +50,22 @@ public class Error {
         imageView.setPickOnBounds(true);
         imageView.setPreserveRatio(true);
         BorderPane.setAlignment(imageView, Pos.CENTER);
-        Image image = new Image(getClass().getResource("/img/error.png").toString());
+        Image image = null;
+        switch (dialogType){
+            case ERROR:
+                image = new Image(getClass().getResource("/img/error.png").toString());
+                break;
+            case WARING:
+                image = new Image(getClass().getResource("/img/warning.png").toString());
+                break;
+            case SUCCESSFUL:
+                image = new Image(getClass().getResource("/img/successful.png").toString());
+                break;
+        }
         imageView.setImage(image);
         root.setLeft(imageView);
         Scene scene = new Scene(root);
-        stage.getIcons().add(new Image(getClass().getResource("/img/exception.png").toString()));
+        stage.getIcons().add(new Image(getClass().getResource("/img/dialog.png").toString()));
         stage.setScene(scene);
         stage.setTitle(title);
         stage.show();

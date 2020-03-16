@@ -238,7 +238,7 @@ public class TransCoding {
                             for (int i=1;i<times.length;i++){
                                 totalTime += Long.parseLong(times[times.length - i - 1]) * (int)Math.pow(60, i-1);
                             }
-                            totalTime -= 1;
+                            totalTime--;
                         }
                     }
                     String y = findText("time=\\d\\d:\\d\\d:\\d\\d.\\d\\d bitrate=",line);

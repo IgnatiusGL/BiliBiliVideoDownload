@@ -79,7 +79,7 @@ public class MainController {
 
         VideoQuality quality;
         if (choiceBox.getValue() == null){
-            new Error("异常", "未选择视频质量").show();
+            new Dialog("异常", "未选择视频质量",DialogType.ERROR).show();
             return;
         }
         String t = choiceBox.getValue();
@@ -101,7 +101,7 @@ public class MainController {
                 });
                 videoInformationList = getVideoInformation.getVideoInformationFromUrl(videoUrl.getText(),quality);
             } catch (InternetException e) {
-                Platform.runLater(()->new Error(e.getMessage(), "网站无法访问,请检查您的网络").show());
+                Platform.runLater(()->new Dialog(e.getMessage(), "网站无法访问,请检查您的网络",DialogType.ERROR).show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -109,7 +109,7 @@ public class MainController {
                 });
                 return;
             } catch (WebsiteNotEndWithAvException e) {
-                Platform.runLater(()->new Error(e.getMessage(), "网址不符合规范").show());
+                Platform.runLater(()->new Dialog(e.getMessage(), "网址不符合规范",DialogType.ERROR).show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -117,7 +117,7 @@ public class MainController {
                 });
                 return;
             } catch (UnknownException e) {
-                Platform.runLater(()->new Error(e.getMessage(), "未知异常").show());
+                Platform.runLater(()->new Dialog(e.getMessage(), "未知异常",DialogType.ERROR).show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -125,7 +125,7 @@ public class MainController {
                 });
                 return;
             } catch (AnalyzeUrlException e) {
-                Platform.runLater(()->new Error(e.getMessage(), "URL解析异常,请联系作者").show());
+                Platform.runLater(()->new Dialog(e.getMessage(), "URL解析异常,请联系作者",DialogType.ERROR).show());
                 e.printStackTrace();
                 Platform.runLater(()->{
                     analyze.setDisable(false);
@@ -202,7 +202,7 @@ public class MainController {
     private void buttonStartOnClick(ActionEvent actionEvent){
         //没有选择路径
         if (path.getText() == null || "".equals(path.getText())){
-            new Error("异常", "没有选择文件路径").show();
+            new Dialog("异常", "没有选择文件路径",DialogType.ERROR).show();
             return;
         }
         //创建线程池
@@ -213,9 +213,9 @@ public class MainController {
         long startTime = System.nanoTime();
         TransCoding.buildProgram(path.getText());
         //开始下载并转码视频
-        List<VideoAllProcessing> videoAllProcessingList = new ArrayList<>();
         Scene scene = path.getScene();
         start.setDisable(true);
+        new Dialog("警告", "下载期间占用系统资源较多,尽量减少电脑操作" + (System.nanoTime() - startTime)/1000000000.0,DialogType.WARING);
         for(int i=0;i<videoInformationList.size();i++){
             VideoAllProcessing videoAllProcessing = new VideoAllProcessing(videoInformationList.get(i), path.getText(), !isSoftwareDecoding.isSelected());
             ProgressBar progressBar = (ProgressBar) scene.lookup("#p1Progress" + i);
@@ -228,7 +228,6 @@ public class MainController {
                     PercentInformation.setText(videoAllProcessing.getMessage());
                 });
             });
-            videoAllProcessingList.add(videoAllProcessing);
             pool.execute(videoAllProcessing);
         }
         //启动线程更新UI
@@ -239,12 +238,12 @@ public class MainController {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    new Error(e.getMessage(), "线程错误,请联系作者").show();
+                    new Dialog(e.getMessage(), "线程错误,请联系作者",DialogType.ERROR).show();
                     e.printStackTrace();
                 }
             }
             TransCoding.disBuildProgram();
-            System.out.println("共用时:"+ (System.nanoTime() - startTime)/1000000000.0);
+            new Dialog("完成", "任务完成用时:" + (System.nanoTime() - startTime)/1000000000.0,DialogType.SUCCESSFUL);
         }).start();
         //保存此次下载目录
         Properties properties = new Properties();
