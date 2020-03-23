@@ -161,6 +161,7 @@ public class MainController {
                 label.setPrefHeight(24);
                 label.setPrefWidth(231);
                 hBox.getChildren().add(label);
+                HBox.setMargin(label, new Insets(0,0,0,50));
 
                 ProgressBar progressBar = new ProgressBar();
                 progressBar.setId("progress" + i);
