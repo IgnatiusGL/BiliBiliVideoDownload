@@ -145,7 +145,7 @@ public class MainController {
             for (int i=0;i<videoInformationList.size();i++){
                 HBox hBox = new HBox();
 
-                CheckBox checkBox = new CheckBox("下载");
+                CheckBox checkBox = new CheckBox();
                 checkBox.setSelected(true);
                 checkBox.setId("isDownload" + i);
                 checkBox.setAlignment(Pos.CENTER);
