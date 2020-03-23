@@ -95,7 +95,7 @@
                   <Button mnemonicParsing="false" onAction="#buttonSelectPathOnClick" text="选择路径" BorderPane.alignment="CENTER" />
                </right>
             </BorderPane>
-            <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="250.0">
+            <BorderPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="250.0">
                <right>
                   <Button fx:id="start" disable="true" mnemonicParsing="false" onAction="#buttonStartOnClick" text="开始下载" BorderPane.alignment="CENTER">
                      <opaqueInsets>
@@ -103,8 +103,11 @@
                      </opaqueInsets>
                   </Button>
                </right>
-               <left>
+               <center>
                   <Button fx:id="analyze" mnemonicParsing="false" onAction="#buttonAnalyseOnClick" text="解析地址" BorderPane.alignment="CENTER" />
+               </center>
+               <left>
+                  <Button fx:id="selectAllorCancelAll" mnemonicParsing="false" onAction="#buttonSelectAllOrCancelAllOnActon" text="全选/全不选" BorderPane.alignment="CENTER" />
                </left>
             </BorderPane>
          </children>

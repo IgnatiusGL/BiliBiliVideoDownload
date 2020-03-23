@@ -29,6 +29,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.function.Predicate.not;
+
 /**
  * @ClassName : MainController
  * @Description : 主界面的控制
@@ -41,8 +43,11 @@ public class MainController {
     private ThreadPoolExecutor pool;
 
     @FXML
-    private ChoiceBox<String> choiceBox;
+    private ChoiceBox<String> choiceBox;//选择视频清晰度栏
 
+    /**
+     * 初始化
+     */
     @FXML
     public void initialize(){
         choiceBox.setItems(FXCollections.observableArrayList("最清晰","1080P","720P","480P","360P"));
@@ -63,15 +68,18 @@ public class MainController {
     }
 
     @FXML
-    private TextField videoUrl;
+    private TextField videoUrl;//视频地址栏
     @FXML
-    private Button start;
+    private Button start;//开始下载按钮
     @FXML
-    private Button analyze;
+    private Button analyze;//开始解析按钮
     @FXML
-    private VBox videoInformation;
+    private VBox videoInformation;//视频信息栏
 
 
+    /**
+     * 解析视频地址按钮事件响应
+     */
     @FXML
     protected void buttonAnalyseOnClick(ActionEvent actionEvent) {
         //清空之前的信息
@@ -137,8 +145,17 @@ public class MainController {
             for (int i=0;i<videoInformationList.size();i++){
                 HBox hBox = new HBox();
 
+                CheckBox checkBox = new CheckBox("下载");
+                checkBox.setSelected(true);
+                checkBox.setId("isDownload" + i);
+                checkBox.setAlignment(Pos.CENTER);
+                checkBox.setPrefHeight(24);
+                checkBox.setPrefWidth(70);
+                hBox.getChildren().add(checkBox);
+                isDownloadList.add(checkBox);
+
                 Label label = new Label();
-                label.setId("p1Title" + i);
+                label.setId("title" + i);
                 label.setText(videoInformationList.get(i).getTitle());
                 label.setAlignment(Pos.CENTER);
                 label.setPrefHeight(24);
@@ -146,7 +163,7 @@ public class MainController {
                 hBox.getChildren().add(label);
 
                 ProgressBar progressBar = new ProgressBar();
-                progressBar.setId("p1Progress" + i);
+                progressBar.setId("progress" + i);
                 progressBar.setPrefHeight(24);
                 progressBar.setPrefWidth(400);
                 progressBar.setProgress(0);
@@ -154,7 +171,7 @@ public class MainController {
                 hBox.getChildren().add(progressBar);
 
                 label = new Label();
-                label.setId("p1ProgressPercent" + i);
+                label.setId("progressPercent" + i);
                 label.setPrefHeight(24);
                 label.setPrefWidth(70);
                 label.setText("0%");
@@ -162,12 +179,13 @@ public class MainController {
                 hBox.getChildren().add(label);
 
                 label = new Label();
-                label.setId("p1PercentInformation" + i);
+                label.setId("percentInformation" + i);
                 label.setText("准备下载");
                 label.setPrefHeight(24);
                 label.setPrefWidth(181);
-                HBox.setMargin(label, new Insets(0,0,0,50));
+                HBox.setMargin(label, new Insets(0,0,0,10));
                 hBox.getChildren().add(label);
+                hBox.setMaxWidth(videoInformation.getWidth());
 
                 hBox.setPadding(new Insets(3,0,3,0));
                 Platform.runLater(()->videoInformation.getChildren().add(hBox));
@@ -181,9 +199,13 @@ public class MainController {
     }
 
     @FXML
-    private TextField path;
+    private TextField path;//下载路径栏
+
+    /**
+     * 选择路径按钮事件响应
+     */
     @FXML
-    private void buttonSelectPathOnClick(ActionEvent actionEvent){
+    private void buttonSelectPathOnClick(){
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("选择视频保存路径");
         File selectedFile = directoryChooser.showDialog(new Stage());
@@ -194,14 +216,17 @@ public class MainController {
     }
 
     @FXML
-    private CheckBox isSoftwareDecoding;
+    private CheckBox isSoftwareDecoding;//是否使用软件解码栏
     @FXML
-    private Spinner<Integer> threadNum;
+    private Spinner<Integer> threadNum;//线程数选择框
     @FXML
-    private CheckBox isShutDownWhenFinished;
+    private CheckBox isShutDownWhenFinished;//是否任务结束后关机选择框
 
+    /**
+     * 开始下载按钮事件响应
+     */
     @FXML
-    private void buttonStartOnClick(ActionEvent actionEvent){
+    private void buttonStartOnClick(){
         //没有选择路径
         if (path.getText() == null || "".equals(path.getText())){
             new Dialog("异常", "没有选择文件路径",DialogType.ERROR).show();
@@ -221,10 +246,16 @@ public class MainController {
         if (isShutDownWhenFinished.isSelected())
             new Dialog("警告", "您选择了在任务完成后关机",DialogType.WARING).show();
         for(int i=0;i<videoInformationList.size();i++){
+            //判断是否要下载
+            CheckBox checkBox = (CheckBox) scene.lookup("#isDownload" + i);
+            if (!checkBox.isSelected()){
+                continue;
+            }
+
             VideoAllProcessing videoAllProcessing = new VideoAllProcessing(videoInformationList.get(i), path.getText(), !isSoftwareDecoding.isSelected());
-            ProgressBar progressBar = (ProgressBar) scene.lookup("#p1Progress" + i);
-            Label ProgressPercent = (Label) scene.lookup("#p1ProgressPercent" + i);
-            Label PercentInformation = (Label) scene.lookup("#p1PercentInformation" + i);
+            ProgressBar progressBar = (ProgressBar) scene.lookup("#progress" + i);
+            Label ProgressPercent = (Label) scene.lookup("#progressPercent" + i);
+            Label PercentInformation = (Label) scene.lookup("#percentInformation" + i);
             videoAllProcessing.setProgressChangeAction(() -> {
                 Platform.runLater(()->{
                     progressBar.setProgress(videoAllProcessing.getProgress().getProgress());
@@ -273,6 +304,22 @@ public class MainController {
         }
     }
 
+    private List<CheckBox> isDownloadList = new ArrayList<>();//存放所有的选择框
+    /**
+     * 全选/全不选事件响应
+     */
+    @FXML
+    private void buttonSelectAllOrCancelAllOnActon(){
+        if (isDownloadList.stream().anyMatch(not(CheckBox::isSelected))){
+            isDownloadList.forEach(e->e.setSelected(true));
+        }else {
+            isDownloadList.forEach(e->e.setSelected(false));
+        }
+    }
+
+    /**
+     * 关于按钮事件响应
+     */
     @FXML
     private void buttonAboutOnClick(){
         new About().showWindow();
