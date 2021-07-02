@@ -37,7 +37,7 @@
                   <ChoiceBox fx:id="choiceBox" BorderPane.alignment="CENTER" />
                </right>
                <left>
-                  <TextField fx:id="videoUrl" focusTraversable="false" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="407.0" promptText="视频地址 https://www.bilibili.com/video/av****** 不要有其他后缀" BorderPane.alignment="CENTER">
+                  <TextField fx:id="videoUrl" focusTraversable="false" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="407.0" promptText="视频地址 https://www.bilibili.com/video/BV****** 不要有其他后缀" BorderPane.alignment="CENTER">
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets>
