@@ -281,9 +281,10 @@ public class MainController {
                 }
             }
             TransCoding.disBuildProgram();
-            Platform.runLater(()->
-                new Dialog("完成", "任务完成用时:" + String.format("%.2f秒",(System.nanoTime() - startTime)/1000000000.0),DialogType.SUCCESSFUL).show()
-            );
+            Platform.runLater(()->{
+                new Dialog("完成", "任务完成用时:" + String.format("%.2f秒",(System.nanoTime() - startTime)/1000000000.0),DialogType.SUCCESSFUL).show();
+                start.setDisable(false);
+            });
             if (isShutDownWhenFinished.isSelected()){
                 try {
                     Runtime.getRuntime().exec("cmd /c shutdown -s -t 0");

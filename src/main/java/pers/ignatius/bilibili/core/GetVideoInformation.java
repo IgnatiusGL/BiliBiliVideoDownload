@@ -37,11 +37,6 @@ public class GetVideoInformation {
         if (url == null) {
             throw new WebsiteNotEndWithAvException();
         }
-        try {
-            url = "https://www.bilibili.com/video/av" + bvToAv(url.substring(33));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         System.out.println(url);
         //检查视频清晰度
         if (videoQuality == null)
@@ -110,7 +105,7 @@ public class GetVideoInformation {
         if (np != null){//多P视频
             System.out.println("多视频");
             //获取视频列表的json
-            url = findText("(https://)?www.bilibili.com/video/av\\d*", url);
+            url = findText("(https://)?www.bilibili.com/video/BV[\\d\\w]*", url);
             //匹配信息
             Pattern pattern = Pattern.compile("\"part\":\"[\\s\\S]+?\"");
             Matcher matcher = pattern.matcher(page);
@@ -222,27 +217,5 @@ public class GetVideoInformation {
             throw new InternetException();
         }
         return page;
-    }
-
-    private String bvToAv(String bv) throws IOException {
-        URL url;
-        url = new URL("https://api.bilibili.com/x/web-interface/view?bvid=BV" + bv);
-        System.out.println(url);
-        HttpURLConnection httpUrl = (HttpURLConnection) url.openConnection();
-        InputStream is = httpUrl.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            line = line.replaceAll("</?a[^>]*>", "");
-            line = line.replaceAll("<(\\w+)[^>]*>", "<$1>");
-            sb.append(line);
-        }
-        is.close();
-        br.close();
-        String data = sb.toString();
-        System.out.println(data);
-        data = data.substring(data.indexOf("aid") + 5);
-        return data.substring(0, data.indexOf(",\""));
     }
 }
