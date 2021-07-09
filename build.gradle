@@ -72,3 +72,7 @@ sourceSets {
         output.setResourcesDir(java.outputDir)
     }
 }
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
