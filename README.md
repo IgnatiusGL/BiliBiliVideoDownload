@@ -1,7 +1,7 @@
 # bilibiliVideoDownload
 
 #### 介绍
-可以下载B站视频,功能部分纯原生Java实现，无第三方依赖
+可以下载B站视频, 功能部分纯原生Java实现, 无第三方依赖
 
 #### 结构
 采用javafx作为用户界面
