@@ -1,3 +1,0 @@
-#!/bin/sh
-DIR="${0%/*}"
-"$DIR/java"  -p "$DIR/../app" -m javafx/pers.ignatius.bilibili.javafx.Main  "$@"
