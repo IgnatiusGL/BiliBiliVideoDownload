@@ -253,7 +253,7 @@ public class MainController {
                 continue;
             }
 
-            VideoAllProcessing videoAllProcessing = new VideoAllProcessing(videoInformationList.get(i), path.getText(), !isSoftwareDecoding.isSelected());
+            VideoAllProcessing videoAllProcessing = new VideoAllProcessing(videoInformationList.get(i), path.getText());
             ProgressBar progressBar = (ProgressBar) scene.lookup("#progress" + i);
             Label ProgressPercent = (Label) scene.lookup("#progressPercent" + i);
             Label PercentInformation = (Label) scene.lookup("#percentInformation" + i);

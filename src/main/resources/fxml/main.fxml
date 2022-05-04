@@ -59,7 +59,6 @@
                <bottom>
                   <HBox prefHeight="50.0" prefWidth="750.0" BorderPane.alignment="CENTER">
                      <children>
-                        <CheckBox fx:id="isSoftwareDecoding" alignment="CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="使用软件解码(画质最好,速度非常慢)" />
                         <BorderPane prefHeight="200.0" prefWidth="200.0">
                            <left>
                               <Label prefHeight="26.0" text="线程数(单任务无效):" BorderPane.alignment="CENTER" />

@@ -11,32 +11,26 @@ import javax.net.ssl.SSLHandshakeException;
  * @Date : 2020-03-02 16:04
  */
 public class VideoAllProcessing implements Runnable {
-    private VideoInformation videoInformation;
-    private Download download;
-    private TransCoding transCoding;
-    private String path;
+    private final VideoInformation videoInformation;
+    private final Download download;
+    private final TransCoding transCoding;
+    private final String path;
+    private final Progress downloadVideoProgress;
+    private final Progress downloadAudioProgress;
+    private final Progress transProgress;
     private String message = "";
-    private Progress downloadVideoProgress;
-    private Progress downloadAudioProgress;
-    private Progress transCodeVideoProgress;
-    private Progress transCodeAudioProgress;
-    private Progress mergeProgress;
-    private boolean isTryHardwareDecoding;
     private ProgressChangeAction progressChangeAction;
 
     {
         download = new Download();
         downloadVideoProgress = new Progress();
         downloadAudioProgress = new Progress();
-        transCodeVideoProgress = new Progress();
-        transCodeAudioProgress = new Progress();
-        mergeProgress = new Progress();
+        transProgress = new Progress();
     }
 
-    public VideoAllProcessing(VideoInformation videoInformation, String path, boolean isTryHardwareDecoding) {
+    public VideoAllProcessing(VideoInformation videoInformation, String path) {
         this.videoInformation = videoInformation;
         this.path = path;
-        this.isTryHardwareDecoding = isTryHardwareDecoding;
         transCoding = new TransCoding();
         //设置监听器
         ProgressChangeAction pca = () -> {
@@ -45,34 +39,28 @@ public class VideoAllProcessing implements Runnable {
         };
         downloadVideoProgress.setProgressChangeAction(pca);
         downloadAudioProgress.setProgressChangeAction(pca);
-        transCodeVideoProgress.setProgressChangeAction(pca);
-        transCodeAudioProgress.setProgressChangeAction(pca);
-        mergeProgress.setProgressChangeAction(pca);
+        transProgress.setProgressChangeAction(pca);
     }
 
     @Override
     public void run() {
         String videoUrl = path + "\\" + videoInformation.getTitle() + "Video.m4s";
         String audioUrl = path + "\\" + videoInformation.getTitle() + "Audio.m4s";
-        String tvideoUrl = path + "\\" + videoInformation.getTitle() + "Video.mp4";
-        String taudioUrl = path + "\\" + videoInformation.getTitle() + "Audio.mp3";
         String resultUrl = path + "\\" + videoInformation.getTitle() + ".mp4";
         //下载
         setMessage("正在下载视频");
         download.download(videoInformation.getVideoUrl(), videoInformation.getUrl(), videoUrl, downloadVideoProgress);
         download.download(videoInformation.getAudioUrl(), videoInformation.getUrl(), audioUrl, downloadAudioProgress);
         //转码
-        setMessage("正在转码,时间较长");
+        setMessage("正在转码");
         try {
-            transCoding.transM4s(videoUrl, tvideoUrl, transCodeVideoProgress, isTryHardwareDecoding);
-            transCoding.transM4s(audioUrl, taudioUrl, transCodeAudioProgress, isTryHardwareDecoding);
+            transCoding.transM4s(videoUrl, audioUrl, resultUrl, transProgress);
         } catch (FileUnexpectedEndException e) {
             e.printStackTrace();
             setMessage(e.getMessage());
             transCoding.cleanTmpFile();
             return;
         }
-        transCoding.merge(tvideoUrl, taudioUrl, resultUrl, mergeProgress);
         //清理
         transCoding.cleanTmpFile();
         if ("100%".equals(getProgress().toString())) {
@@ -111,10 +99,8 @@ public class VideoAllProcessing implements Runnable {
      * @return 进度0-1
      */
     public Progress getProgress() {
-        return new Progress(downloadVideoProgress.getProgress() * 0.15 +
-                downloadAudioProgress.getProgress() * 0.05 +
-                transCodeVideoProgress.getProgress() * 0.70 +
-                transCodeAudioProgress.getProgress() * 0.05 +
-                mergeProgress.getProgress() * 0.05);
+        return new Progress(downloadVideoProgress.getProgress() * 0.90 +
+                downloadAudioProgress.getProgress() * 0.09 +
+                transProgress.getProgress() * 0.01);
     }
 }

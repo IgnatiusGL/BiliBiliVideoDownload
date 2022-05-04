@@ -31,7 +31,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class GetVideoInformation {
     public List<VideoInformation> getVideoInformationFromUrl(String url, VideoQuality videoQuality) throws InternetException, WebsiteNotEndWithAvException, UnknownException, AnalyzeUrlException {
-        List<VideoInformation> videoInformations = new ArrayList<>();
+        List<VideoInformation> videoInformationList = new ArrayList<>();
         //检查网址是否符合标准
         url = findText("https://www.bilibili.com/video/BV[\\d\\w]*", url);
         if (url == null) {
@@ -45,31 +45,32 @@ public class GetVideoInformation {
         //获取网页源代码
         String page = getWebsiteSource(url);
         //获取视频的全部视频
-        getVideosInformation(url,page,videoInformations);
+        getVideosInformation(url, page, videoInformationList);
         //分析所有视频
-        for (int i=0;i<videoInformations.size();i++){
-            analyzeUrl(videoQuality,videoInformations.get(i));
+        for (int i = 0; i < videoInformationList.size(); i++) {
+            analyzeUrl(videoQuality, videoInformationList.get(i));
         }
-        return videoInformations;
+        return videoInformationList;
     }
 
     /**
      * 分析网页获取视频和音频信息
-     * @param quality   视频质量
-     * @param videoInformation  视频信息
-     * @throws InternetException    网络异常
-     * @throws AnalyzeUrlException  分析网址异常
+     *
+     * @param quality          视频质量
+     * @param videoInformation 视频信息
+     * @throws InternetException   网络异常
+     * @throws AnalyzeUrlException 分析网址异常
      */
-    private void analyzeUrl(VideoQuality quality,VideoInformation videoInformation) throws InternetException, AnalyzeUrlException {
+    private void analyzeUrl(VideoQuality quality, VideoInformation videoInformation) throws InternetException, AnalyzeUrlException {
         System.out.println(videoInformation.getUrl());
         //获取网页源代码
         String page = getWebsiteSource(videoInformation.getUrl());
 
         //匹配视频地址
         int code = quality.getCode();
-        if (quality == VideoQuality.HIGHEST_QUALITY){
+        if (quality == VideoQuality.HIGHEST_QUALITY) {
             //找到质量最好
-            String q = findText("\"accept_quality\":\\[[0-9,]*\\]",page);
+            String q = findText("\"accept_quality\":\\[[0-9,]*\\]", page);
             if (q == null)
                 throw new AnalyzeUrlException();
             if (q.contains(VideoQuality.P1080.getCode() + ""))
@@ -82,48 +83,49 @@ public class GetVideoInformation {
                 code = VideoQuality.P360.getCode();
         }
         System.out.println("视频质量:" + code);
-        String videoUrl = findText("\"id\":"+code+",\"baseUrl\":\"[\\s\\S]+?\"",page);
+        String videoUrl = findText("\"id\":" + code + ",\"baseUrl\":\"[\\s\\S]+?\"", page);
         if (videoUrl == null)//判空
             throw new AnalyzeUrlException();
-        videoInformation.setVideoUrl(videoUrl.substring(19,videoUrl.length()-1));
+        videoInformation.setVideoUrl(videoUrl.substring(19, videoUrl.length() - 1));
 
         //匹配音频地址
-        String audioUrl = findText("\"audio\":\\[\\{\"id\":\\d*,\"baseUrl\":\"[\\s\\S]+?\"",page);
+        String audioUrl = findText("\"audio\":\\[\\{\"id\":\\d*,\"baseUrl\":\"[\\s\\S]+?\"", page);
         if (audioUrl == null)//判空
             throw new AnalyzeUrlException();
-        videoInformation.setAudioUrl(audioUrl.substring(32,audioUrl.length()-1));
+        videoInformation.setAudioUrl(audioUrl.substring(32, audioUrl.length() - 1));
     }
 
     /**
      * 获取视频信息,包括标题,地址
-     * @param page 页面
+     *
+     * @param page              页面
      * @param videoInformations 视频信息
      * @throws UnknownException 未知异常
      */
-    private void getVideosInformation(String url,String page,List<VideoInformation> videoInformations) throws UnknownException, InternetException {
+    private void getVideosInformation(String url, String page, List<VideoInformation> videoInformations) throws UnknownException, InternetException {
         String np = findText("<ul class=\"list-box\">[\\s\\S]+?</ul>", page);
-        if (np != null){//多P视频
+        if (np != null) {//多P视频
             System.out.println("多视频");
             //获取视频列表的json
             url = findText("(https://)?www.bilibili.com/video/BV[\\d\\w]*", url);
             //匹配信息
             Pattern pattern = Pattern.compile("\"part\":\"[\\s\\S]+?\"");
             Matcher matcher = pattern.matcher(page);
-            for (int i=0;matcher.find();i++){
+            for (int i = 0; matcher.find(); i++) {
                 String title = matcher.group();
                 VideoInformation videoInformation = new VideoInformation();
-                videoInformation.setTitle(("P" + (i + 1) + "-" + title.substring(8,title.length()-1)).replace(" ", ""));
+                videoInformation.setTitle(("P" + (i + 1) + "-" + title.substring(8, title.length() - 1)).replace(" ", ""));
                 videoInformation.setUrl(url + "?p=" + (i + 1));
                 videoInformations.add(videoInformation);
             }
-        }else {//单独视频
+        } else {//单独视频
             System.out.println("单视频");
             //匹配标题
-            String title = findText("(\"title\":\").+(\",\"pubdate\")",page);
-            if(title == null)//判空
+            String title = findText("(\"title\":\").+(\",\"pubdate\")", page);
+            if (title == null)//判空
                 throw new UnknownException();
             VideoInformation videoInformation = new VideoInformation();
-            videoInformation.setTitle(title.substring(9,title.length()-11).replaceAll(" ", ""));
+            videoInformation.setTitle(title.substring(9, title.length() - 11).replaceAll(" ", ""));
             videoInformation.setUrl(url);
             videoInformations.add(videoInformation);
         }
@@ -131,14 +133,15 @@ public class GetVideoInformation {
 
     /**
      * 正则匹配找第一个
-     * @param reger 正则表达式
+     *
+     * @param regex 正则表达式
      * @param page  匹配的页面
-     * @return  匹配的文字
+     * @return 匹配的文字
      */
-    private String findText(String reger,String page){
-        Pattern pattern = Pattern.compile(reger);
+    private String findText(String regex, String page) {
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(page);
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group(0);
         }
         return null;
@@ -146,9 +149,10 @@ public class GetVideoInformation {
 
     /**
      * 获取网页源代码
-     * @param url   网址
-     * @return  源代码
-     * @throws InternetException    网络异常
+     *
+     * @param url 网址
+     * @return 源代码
+     * @throws InternetException 网络异常
      */
     private String getWebsiteSource(String url) throws InternetException {
         //连接网站
@@ -158,7 +162,7 @@ public class GetVideoInformation {
         CookieHandler.setDefault(manager);
         try {
             SSLContext sslContext = SSLContext.getInstance("SSL");
-            TrustManager[] tm = {new X509TrustManager(){
+            TrustManager[] tm = {new X509TrustManager() {
 
                 @Override
                 public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
@@ -187,7 +191,7 @@ public class GetVideoInformation {
             httpURLConnection.setRequestProperty("Host", "www.bilibili.com");
             httpURLConnection.setSSLSocketFactory(ssf);
             httpURLConnection.connect();
-            if (httpURLConnection.getResponseCode() != 200){
+            if (httpURLConnection.getResponseCode() != 200) {
                 System.out.println(httpURLConnection.getResponseCode() + ":" + httpURLConnection.getResponseMessage());
                 throw new InternetException();
             }
@@ -203,12 +207,12 @@ public class GetVideoInformation {
             BufferedReader bf = new BufferedReader(new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8));
             String t;
             StringBuilder res = new StringBuilder();
-            while((t = bf.readLine()) != null){
+            while ((t = bf.readLine()) != null) {
                 res.append(t).append("\n");
             }
             page = res.toString();
             //防止和谐 100~300 ms
-            Thread.sleep((new Random().nextInt(2) + 1)*100);
+            Thread.sleep((new Random().nextInt(2) + 1) * 100);
             bf.close();
             in.close();
             httpURLConnection.disconnect();
